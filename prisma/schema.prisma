@@ -1,0 +1,189 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = "postgresql://postgres.zjuwxgnflnzajffemaxl:ffr0GiHLyJUANlNq@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
+  directUrl = "postgresql://postgres.zjuwxgnflnzajffemaxl:ffr0GiHLyJUANlNq@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres "
+}
+
+model User {
+  id              String         @id @default(uuid())
+  clerkUserId     String         @unique // clerk user id
+  email           String         @unique
+  name            String?
+  imageUrl        String?
+  transactions    Transaction[]
+  accounts        Account[]
+  budgets         Budget[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  splitMembers    SplitMember[]
+  paidExpenses    SplitExpense[] @relation("PaidByRelation")
+  owedSplits      SplitShare[]   @relation("UserOwedRelation")
+  sentFriends     Friendship[]   @relation("UserFriend")
+  receivedFriends Friendship[]   @relation("FriendOfUser")
+  askAi           ChatMessage[]  @relation("askAiUser")
+
+  @@map("users")
+}
+
+model Account {
+  id           String        @id @default(uuid())
+  name         String
+  type         AccountType
+  balance      Decimal       @default(0) // will ask inital balance while creating an account
+  isDefault    Boolean       @default(false)
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Transaction {
+  id                String             @id @default(uuid())
+  type              TransactionType
+  amount            Decimal
+  description       String?
+  date              DateTime
+  category          String
+  receiptUrl        String?
+  isRecurring       Boolean            @default(false)
+  recurringInterval RecurringInterval? // Only used if isRecurring is true
+  nextRecurringDate DateTime? // Next date for recurring transaction
+  lastProcessed     DateTime? // Last time this recurring transaction was processed
+  status            TransactionStatus  @default(COMPLETED)
+  userId            String
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountId         String
+  account           Account            @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@index([userId])
+  @@index([accountId])
+  @@map("transactions")
+}
+
+model Budget {
+  id            String    @id @default(uuid())
+  amount        Decimal
+  lastAlertSent DateTime? // Track when the last alert was sent
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("budgets")
+}
+
+model SplitGroup {
+  id          String         @id @default(uuid())
+  name        String
+  description String?
+  createdBy   String // Clerk ID or User ID
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  members     SplitMember[]
+  expenses    SplitExpense[]
+
+  @@map("split_groups")
+}
+
+model SplitMember {
+  id        String     @id @default(uuid())
+  groupId   String
+  userId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group     SplitGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@unique([groupId, userId])
+  @@map("split_members")
+}
+
+model SplitExpense {
+  id          String       @id @default(uuid())
+  amount      Decimal
+  description String?
+  category    String
+  paidById    String // who paid
+  paidBy      User         @relation("PaidByRelation", fields: [paidById], references: [id], onDelete: Cascade)
+  groupId     String
+  group       SplitGroup   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  splits      SplitShare[]
+
+  @@map("split_expenses")
+}
+
+model SplitShare {
+  id        String       @id @default(uuid())
+  expenseId String
+  userId    String // who owes
+  user      User         @relation("UserOwedRelation", fields: [userId], references: [id], onDelete: Cascade)
+  expense   SplitExpense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  amount    Decimal // how much user owes
+
+  @@unique([expenseId, userId])
+  @@map("split_shares")
+}
+
+model Friendship {
+  id        String   @id @default(uuid())
+  userId    String
+  friendId  String
+  user      User     @relation("UserFriend", fields: [userId], references: [id])
+  friend    User     @relation("FriendOfUser", fields: [friendId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, friendId]) // Avoid duplicates
+  @@map("friendships")
+}
+
+model ChatMessage {
+  id        String   @id @default(uuid())
+  userId    String
+  role      String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user        User     @relation("askAiUser",fields: [userId], references: [id])
+  @@index([userId])
+  @@map("chat_messages")
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+enum AccountType {
+  CURRENT
+  SAVINGS
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum RecurringInterval {
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
