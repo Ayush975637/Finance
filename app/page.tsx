@@ -156,13 +156,13 @@ const handleAispeech = async () => {
 
 
 
-  useEffect(() => {
-  if (typeof window !== "undefined") {
-    window.speechSynthesis.onvoiceschanged = () => {
-      console.log("Voices loaded:", window.speechSynthesis.getVoices());
-    };
-  }
-}, []);
+//   useEffect(() => {
+//   if (typeof window !== "undefined") {
+//     window.speechSynthesis.onvoiceschanged = () => {
+//       console.log("Voices loaded:", window.speechSynthesis.getVoices());
+//     };
+//   }
+// }, []);
 
   return (
     <div className="min-h-screen bg-white">
