@@ -91,38 +91,38 @@ const [chatHistory, setChatHistory] = useState([
 
 
 const handleAispeech = async () => {
-  const SpeechRecognition =
-    window.SpeechRecognition || window.webkitSpeechRecognition;
+  // const SpeechRecognition =
+  //   window.SpeechRecognition || window.webkitSpeechRecognition;
 
-  if (!SpeechRecognition) {
-    alert("Speech Recognition not supported in your browser");
-    return;
-  }
+  // if (!SpeechRecognition) {
+  //   alert("Speech Recognition not supported in your browser");
+  //   return;
+  // }
 
-  const recognition = new SpeechRecognition();
-  recognition.lang = "en-US";
-  recognition.interimResults = false;
+  // const recognition = new SpeechRecognition();
+  // recognition.lang = "en-US";
+  // recognition.interimResults = false;
 
-  recognition.onstart = () => setIsListening(true);
+  // recognition.onstart = () => setIsListening(true);
 
-  recognition.onresult = async (event) => {
-    const userInput = event.results[0][0].transcript;
-    setTranscript(userInput);
-    setIsListening(false);
+  // recognition.onresult = async (event) => {
+  //   const userInput = event.results[0][0].transcript;
+  //   setTranscript(userInput);
+  //   setIsListening(false);
 
-    try {
-      const reply = await handler(userInput);
-      const finalResponse = reply.response || reply.error || "";
-      setResponse(finalResponse);
-      console.log("🧠 AI said:", finalResponse);
-      speak(finalResponse); // ✅ Works now
-    } catch (e) {
-      setResponse("Error occurred while processing.");
-    }
-  };
+  //   try {
+  //     const reply = await handler(userInput);
+  //     const finalResponse = reply.response || reply.error || "";
+  //     setResponse(finalResponse);
+  //     console.log("🧠 AI said:", finalResponse);
+  //     speak(finalResponse); // ✅ Works now
+  //   } catch (e) {
+  //     setResponse("Error occurred while processing.");
+  //   }
+  // };
 
-  recognition.onerror = () => setIsListening(false);
-  recognition.start();
+  // recognition.onerror = () => setIsListening(false);
+  // recognition.start();
 };
 
 
