@@ -147,11 +147,11 @@ const handleAispeech = async () => {
   };
   const bottomRef = useRef(null);
 
-useEffect(() => {
-  if (bottomRef.current) {
-    bottomRef.current.scrollIntoView({ behavior: "smooth" });
-  }
-}, [chatHistory]);
+// useEffect(() => {
+//   if (bottomRef.current) {
+//     bottomRef.current.scrollIntoView({ behavior: "smooth" });
+//   }
+// }, [chatHistory]);
 
 
 
