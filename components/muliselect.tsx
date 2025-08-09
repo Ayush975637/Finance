@@ -8,10 +8,21 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Check, ChevronDown } from "lucide-react";
 import { useState } from "react";
 
-export function MultiSelect({ options, selected, setSelected }) {
-  const toggleOption = (value) => {
-    setSelected((prev) =>
-      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
+interface Option {
+  value: string;
+  label: string;
+}
+
+interface MultiSelectProps {
+  options: Option[];
+  selected: string[];
+  setSelected: (value: string[] | ((prev: string[]) => string[])) => void;
+}
+
+export function MultiSelect({ options, selected, setSelected }: MultiSelectProps) {
+  const toggleOption = (value: string) => {
+    setSelected((prev: string[]) =>
+      prev.includes(value) ? prev.filter((v: string) => v !== value) : [...prev, value]
     );
   };
 
@@ -25,7 +36,7 @@ export function MultiSelect({ options, selected, setSelected }) {
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-2">
         <ScrollArea className="h-48">
-          {options.map((opt) => (
+          {options.map((opt: Option) => (
             <div
               key={opt.value}
               onClick={() => toggleOption(opt.value)}

@@ -37,6 +37,11 @@ const nextConfig = {
       bodySizeLimit: "5mb", // Increase upload size for server actions
     },
   },
+  eslint: {
+    // Warning: This allows production builds to successfully complete even if
+    // your project has ESLint errors.
+    ignoreDuringBuilds: false,
+  },
   // Any other config can go here too
 };
 

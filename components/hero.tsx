@@ -9,7 +9,7 @@ import Image from 'next/image';
 const HeroSection = () => {
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = (e: React.MouseEvent<HTMLImageElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width;
     const y = (e.clientY - rect.top) / rect.height;
@@ -45,7 +45,7 @@ const HeroSection = () => {
         <div className="flex flex-col sm:flex-row justify-center gap-4 mb-16">
           <Link href="/dashboard">
             <Button size="lg" className="px-8 py-6 text-lg bg-gradient-to-r from-blue-600 to-teal-500 hover:from-blue-700 hover:to-teal-600 shadow-lg transition-all transform hover:scale-105">
-              Get Started - It's Free
+              Get Started - It&apos;s Free
             </Button>
           </Link>
           <Link href="https://www.youtube.com/roadsidecoder">
